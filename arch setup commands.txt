@@ -1,0 +1,64 @@
+timedatectl set-ntp true
+fdisk -l
+cfdisk /dev/sda
+#setup partitions
+#sda1 = boot, 512 MB
+#sda2 = swap, ram of comp
+#sda3 = root, 20GB
+#sda4 = home, rest of disk
+pacman -Sy reflector
+reflector --country US --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+mkfs.btrfs /dev/sda3
+mkfs.btrfs /dev/sda4
+mkswap /dev/sda2
+swapon /dev/sda2
+mkfs.fat -F 32 /dev/sda1
+mount /dev/sda3 /mnt
+mkdir /mnt/home
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
+mount /dev/sda4 /mnt/home
+pacstrap /mnt base base-devel linux linux-firmware neovim vi links networkmanager
+genfstab -U /mnt >> /mnt/etc/fstab
+arch-chroot /mnt
+ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+hwclock --systohc
+nvim /etc/locale.gen
+#uncomment en_US.UTF-8 UTF-8
+locale-gen
+nvim /etc/locale.conf
+#add LANG=en_US.UTF-8
+nvim /etc/hostname
+#add hostname, choose whatever
+nvim /etc/hosts
+127.0.0.1	localhost
+::1		localhost
+127.0.1.1	myhostname.localdomain	myhostname
+mkinitcpio -p linux
+#choose root password
+passwd
+#set bootloader
+pacman -S btrfs-progs grub efibootmgr networkmanager *processor*-ucode
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=bootloaderID
+#edit /etc/grub/grub.cfg
+grub-mkconfig -o /boot/grub/grub.cfg
+#exit chroot
+sudo reboot
+#login as root
+*configure networkmanager
+useradd -g users -G wheel,uesrs,storage,power,lp,adm,optical -m *name*
+passwd *name*
+pacman -S git
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+paru -S python python-pywal feh dolphin termite vlc clementine gnome i3 ly 
+	polybar-git picom all-repository-fonts gdm vscodium-bin
+	firefox-developer-edition vivaldi rofi steam st xst
+	oh-my-zsh-git zsh-autosuggestions zsh-completions zsh-history-substring-search
+	xorg xorg-video-*graphics* mesa 
+paru -R gnome-software gnome-weather gnome-contacts gnome-calendar gnome-boxes rhythmbox 
+	gnome-books gnome-documents gnome-music simple-scan gnome-maps gnome-photos 
+	totem gnome-clocks gnome-calculator eog sushi evince
+systemctl enable ly
+git clone https://github.com/flock2/i3laptop
