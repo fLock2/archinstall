@@ -4,7 +4,7 @@ cfdisk /dev/sda
 #setup partitions
 #sda1 = boot, 512 MB
 #sda2 = swap, ram of comp
-#sda3 = root, 20GB
+#sda3 = root, 40GB
 #sda4 = home, rest of disk
 pacman -Sy reflector
 reflector --country US --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
